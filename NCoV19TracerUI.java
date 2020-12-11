@@ -24,9 +24,7 @@ public class NCoV19TracerUI extends JFrame{
 		setLayout(null);
 		//setUndecorated(true);
 		setLocationRelativeTo(null);
-		//initLogin();
-		viewingScreen();
-
+		initLogin();
 		// initMenu();
 
 		//make this center EDIT PA
