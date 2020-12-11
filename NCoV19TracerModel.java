@@ -13,7 +13,7 @@ public class NCoV19TracerModel{
 	//Constructor
 	public NCoV19TracerModel(){
 		try{
-			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+			Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             System.err.println("Unable to find and load driver");
             System.exit(1);
@@ -84,13 +84,12 @@ public class NCoV19TracerModel{
 
         if(type==0){ //1st level
                 query = "SELECT person.name, contact_no, address FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id= ? );";
-            }else if(type==1){
+            }else if(type==1){ //2 level contacts
                 query = "SELECT person.name, contact_no, address FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id IN (SELECT person.id FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id= ? )));";
             }else{ //establishment visited
                 query = "SELECT establishment.name AS VISITED FROM establishment, visited WHERE visited.establishment_id=establishment.id AND visited.person_id = ? ;";
             }
-
-          //  System.out.println(query);
+            
         try{
             stmt = connection.prepareStatement(query);
             stmt.setInt(1, id);
@@ -102,7 +101,6 @@ public class NCoV19TracerModel{
             sqle.printStackTrace();
             //add catch for empty JTable
         }
-
         return table;
     }
 
@@ -121,7 +119,6 @@ public class NCoV19TracerModel{
                 data.add(rs.getObject(colIndex));
             rowData.add(data);
         }
-
         return new DefaultTableModel(rowData, colNames);
     }
 
@@ -129,50 +126,37 @@ public class NCoV19TracerModel{
 
     //check if person exists in the db
     public boolean personExists(int id){
-        try{
-            Statement st = connection.createStatement();
-            String sql = "SELECT * FROM person WHERE id="+id;
-            ResultSet rs = st.executeQuery(sql);
-    
-            if(rs.next())
-                return true;
-        }catch(SQLException sqe){}
-
-        return false;
+        return exists("SELECT * FROM person WHERE id="+id);
     }
 
     public boolean personExists(String name){
-        try{
-            Statement st = connection.createStatement();
-            String sql = "SELECT * FROM person WHERE name='"+name+"'";
-            ResultSet rs = st.executeQuery(sql);
-    
-            if(rs.next())
-                return true;
-        }catch(SQLException sqe){}
-
-        return false;
+        return exists("SELECT * FROM person WHERE name='"+name+"'");
     }
 
-
-    //creaetea a helper function
     public boolean estabExists(String name){
+        return exists("SELECT * from establishment where name= '"+name+"'");
+    }
+
+    public boolean isIn(int id){
+        return exists("SELECT * from visited where person_id= "+id+" AND date= '"+
+                Date.valueOf(java.time.LocalDate.now())+"' AND time_out is null;");
+    }
+
+    private boolean exists(String query){
         try{
             Statement st = connection.createStatement();
-            String sql = "SELECT * from establishment where name= '"+name+"'";
-            ResultSet rf = st.executeQuery(sql);
+            ResultSet rg = st.executeQuery(query);
 
-            if(rf.next())
+            if(rg.next())
                 return true;
         }catch(SQLException sqle){
             sqle.getMessage();
             sqle.printStackTrace();
         }
-
         return false;
     }
 
-    public int verifyLogin(String name, String pass){
+     public int verifyLogin(String name, String pass){
         try{
             Statement st = connection.createStatement();
             String sql = "SELECT * from establishment where name= '"+name+"' AND password= '"+pass+"'";
@@ -186,22 +170,6 @@ public class NCoV19TracerModel{
         }
 
         return 0;
-    }
-
-    public boolean isIn(int id){
-        try{
-            Statement st = connection.createStatement();
-            String sql = "SELECT * from visited where person_id= "+id+" AND date= '"+
-                            Date.valueOf(java.time.LocalDate.now())+"' AND time_out is null;";
-            ResultSet rg = st.executeQuery(sql);
-
-            if(rg.next())
-                return true;
-        }catch(SQLException sqle){
-            sqle.getMessage();
-            sqle.printStackTrace();
-        }
-        return false;
     }
 
     public int getID(String name){
@@ -226,8 +194,7 @@ public class NCoV19TracerModel{
     }
 
 	public static void main(String[] args){
-		new NCoV19TracerModel();
+		NCoV19TracerUI ui = new NCoV19TracerUI();
+        ui.setVisible(true);
 	}
-
-
 }

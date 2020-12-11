@@ -61,13 +61,12 @@ public class NCoV19TracerUI extends JFrame{
 				if(controller.establishmentExists(estName)){
 					establishmentID = controller.logIn(estName, estPass);
 					if(establishmentID>0){
+						NCoV19TracerUI.this.getContentPane().remove(loginPanel);
 						if(estName.equals("UPCT19")){ //contact tracers
 							viewingScreen();
 						}else{ //other establishments
 							listingScreen();
 						}
-						remove(loginPanel);
-						revalidate();
 					}else{//wrong password
 						JOptionPane.showMessageDialog(null,"Wrong Password",
                         "Login Error", JOptionPane.ERROR_MESSAGE);
@@ -151,7 +150,7 @@ public class NCoV19TracerUI extends JFrame{
 					contNumField.setText("");
 				}else{
 					JOptionPane.showMessageDialog(null,"Person is already IN!",
-	                "Pisting Yawa", JOptionPane.ERROR_MESSAGE);
+	                "Signup Error", JOptionPane.ERROR_MESSAGE);
 				}
 
 			}
@@ -170,27 +169,27 @@ public class NCoV19TracerUI extends JFrame{
 	                        "Sign out", JOptionPane.INFORMATION_MESSAGE);
 						}else{
 							JOptionPane.showMessageDialog(null,"Person is not in yet!",
-	                        "Pisting Yawa", JOptionPane.ERROR_MESSAGE);
+	                        "Sign out Error", JOptionPane.ERROR_MESSAGE);
 						}
 
 				}catch(NumberFormatException nf){
 					nf.printStackTrace();
-					JOptionPane.showMessageDialog(null,"Piste not an ID number!",
-	                "Pisting Yawa", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null,"Not an ID number!",
+	                "Sign out Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
-
 		this.add(listingPanel);
 	}
 
 	//screen for contact tracers
 	private void viewingScreen(){
+		this.getContentPane().repaint();
 		//panel that holds the search engine
 		JPanel searchPanel = new JPanel(new FlowLayout());
 		//change the width and height to follow the frame
 		searchPanel.setBounds(10, 60, this.getWidth()-20, 50);
-		searchPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		//searchPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
 		JLabel searchTitle = new JLabel("Search", JLabel.LEFT);
 		JTextField searchbox = new JTextField("Name or ID",15);
@@ -214,6 +213,7 @@ public class NCoV19TracerUI extends JFrame{
 			}
 		}); 
 		this.add(searchPanel);
+		this.revalidate();
 	}
 
 	private void showTable(JTable table){
