@@ -1,17 +1,15 @@
 //package NCoV19TracerApp;
 
 import java.sql.*;
-import javax.sql.rowset.*;
 import javax.swing.*;
-import java.text.SimpleDateFormat;
+import javax.swing.table.DefaultTableModel;
+import java.util.Vector;
 
 public class NCoV19TracerModel{
 	
     Connection connection;
-    CachedRowSet courseListRowSet; // Contains data
-    //ResultSetMetaData metadata;
     PreparedStatement stmt;
-    int numcols, numrows;
+
 	//Constructor
 	public NCoV19TracerModel(){
 		try{
@@ -27,24 +25,7 @@ public class NCoV19TracerModel{
         } catch (SQLException sqlerr) {
             System.out.println(sqlerr.getSQLState()+":"+sqlerr.getErrorCode());
         }
-        
         System.out.println("Connected Successfully");
-        
-        // try {
-        //     connection.setAutoCommit(false);
-        //     courseListRowSet = RowSetProvider.newFactory().createCachedRowSet();
-        //     courseListRowSet.setType(ResultSet.TYPE_SCROLL_INSENSITIVE);
-        //     courseListRowSet.setConcurrency(ResultSet.CONCUR_UPDATABLE);
-        //     courseListRowSet.setCommand("SELECT * FROM courselist");
-        //     courseListRowSet.execute(connection);
-            
-        //     metadata = courseListRowSet.getMetaData();
-        //     numcols = metadata.getColumnCount();
-        //     numrows = courseListRowSet.size();
-        //     courseListRowSet.first();
-        // } catch (SQLException exp) {
-        //     exp.printStackTrace();
-        // }
 	}
 
     public void insertData(String[] input){
@@ -97,6 +78,53 @@ public class NCoV19TracerModel{
         }
     }
 
+    public JTable getTable(int type, int id){
+        String query;
+        javax.swing.JTable table = null;
+
+        if(type==0){ //1st level
+                query = "SELECT person.name, contact_no, address FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id= ? );";
+            }else if(type==1){
+                query = "SELECT person.name, contact_no, address FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id IN (SELECT person.id FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id= ? )));";
+            }else{ //establishment visited
+                query = "SELECT establishment.name AS VISITED FROM establishment, visited WHERE visited.establishment_id=establishment.id AND visited.person_id = ? ;";
+            }
+
+          //  System.out.println(query);
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, id);
+            ResultSet rg = stmt.executeQuery();
+            
+            table = new javax.swing.JTable(buildTable(rg));
+        }catch(SQLException sqle){
+            sqle.getMessage();
+            sqle.printStackTrace();
+            //add catch for empty JTable
+        }
+
+        return table;
+    }
+
+    private DefaultTableModel buildTable(ResultSet rs) throws SQLException{
+        ResultSetMetaData rsm = rs.getMetaData();
+        int colCount = rsm.getColumnCount();
+        Vector<String> colNames = new Vector<String>();
+        Vector<Vector<Object>> rowData =  new Vector<Vector<Object>>();
+
+        for(int i = 1; i<=colCount; i++) //list all the column names from the query output
+            colNames.add(rsm.getColumnName(i));
+
+        while(rs.next()){
+            Vector<Object> data = new Vector<Object>();
+            for(int colIndex = 1; colIndex<=colCount; colIndex++)
+                data.add(rs.getObject(colIndex));
+            rowData.add(data);
+        }
+
+        return new DefaultTableModel(rowData, colNames);
+    }
+
     public void deleteData(){}
 
     //check if person exists in the db
@@ -112,6 +140,20 @@ public class NCoV19TracerModel{
 
         return false;
     }
+
+    public boolean personExists(String name){
+        try{
+            Statement st = connection.createStatement();
+            String sql = "SELECT * FROM person WHERE name='"+name+"'";
+            ResultSet rs = st.executeQuery(sql);
+    
+            if(rs.next())
+                return true;
+        }catch(SQLException sqe){}
+
+        return false;
+    }
+
 
     //creaetea a helper function
     public boolean estabExists(String name){
@@ -131,7 +173,7 @@ public class NCoV19TracerModel{
     }
 
     public int verifyLogin(String name, String pass){
-         try{
+        try{
             Statement st = connection.createStatement();
             String sql = "SELECT * from establishment where name= '"+name+"' AND password= '"+pass+"'";
             ResultSet rg = st.executeQuery(sql);
@@ -162,12 +204,21 @@ public class NCoV19TracerModel{
         return false;
     }
 
-    public int getRowCount(){
-        return numrows;
-    }
+    public int getID(String name){
+        if(personExists(name)){
+            try{
+                Statement st = connection.createStatement();
+                String sql = "SELECT * from person where name= '"+name+"' LIMIT 1;";
+                ResultSet rg = st.executeQuery(sql);
 
-    public int getColumnCount(){
-        return numcols;
+                if(rg.next())
+                    return rg.getInt("id");
+            }catch(SQLException sqle){
+                sqle.getMessage();
+                sqle.printStackTrace();
+            }
+        }
+        return 0; //0 means no person
     }
 
     public Connection getConnection(){

@@ -1,5 +1,7 @@
 //package NCoV19TracerApp;
 
+import javax.swing.JTable;
+
 public class NCoV19TracerController{
 	private NCoV19TracerUI ui;
 	private NCoV19TracerModel model = null;
@@ -28,6 +30,26 @@ public class NCoV19TracerController{
 		return model.verifyLogin(name, pass);
 	}
 
+	public JTable tracerQuery(String contact, String type){
+		int id;
+		try{//id
+			id = Integer.parseInt(contact);
+		}catch(NumberFormatException ne){ //name
+			id = getID(contact);
+		}	
+		if(id==0 || !model.personExists(id)){
+			javax.swing.JOptionPane.showMessageDialog(null,"No person in the database!","Search Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+		}else{
+			return model.getTable(getQueryType(type), id);
+		}
+		return null;
+	}
+
+	private void updateGUITable(){
+
+	}
+
+	//create an instance exists
 	public boolean establishmentExists(String name){
 		return model.estabExists(name);
 	}
@@ -36,7 +58,20 @@ public class NCoV19TracerController{
 		return model.isIn(id);
 	}
 
+	private int getID(String name){
+		return model.getID(name);
+	}
+
 	public NCoV19TracerModel getModel(){
 		return model;
+	}
+
+	private int getQueryType(String type){
+		if(type.equals("1st-Level Contact"))
+			return 0;
+		else if(type.equals("2nd-Level Contact"))
+			return 1;
+		else
+			return 2;
 	}
 }

@@ -3,6 +3,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class NCoV19TracerUI extends JFrame{
 	private String establishment;
@@ -11,9 +12,7 @@ public class NCoV19TracerUI extends JFrame{
 
 	//constructor
 	public NCoV19TracerUI(){
-		System.out.println( java.sql.Time.valueOf((java.time.LocalTime.now()).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")).toString()));
 		initUI();
-
 		controller = new NCoV19TracerController(this);
 	}
 
@@ -25,8 +24,8 @@ public class NCoV19TracerUI extends JFrame{
 		setLayout(null);
 		//setUndecorated(true);
 		setLocationRelativeTo(null);
-
-		initLogin();
+		//initLogin();
+		viewingScreen();
 
 		// initMenu();
 
@@ -82,10 +81,10 @@ public class NCoV19TracerUI extends JFrame{
 				}
 			}
 		});
-
 		this.add(loginPanel);
 	}
 
+	//listing screen for the establishments
 	private void listingScreen(){
 		this.getContentPane().repaint();
 		JLabel estLabel =  new JLabel(establishment);
@@ -190,9 +189,9 @@ public class NCoV19TracerUI extends JFrame{
 	//screen for contact tracers
 	private void viewingScreen(){
 		//panel that holds the search engine
-		searchPanel = new JPanel(new FlowLayout());
+		JPanel searchPanel = new JPanel(new FlowLayout());
 		//change the width and height to follow the frame
-		searchPanel.setBounds(0,60, 500, 50);
+		searchPanel.setBounds(10, 60, this.getWidth()-20, 50);
 		searchPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
 		JLabel searchTitle = new JLabel("Search", JLabel.LEFT);
@@ -203,7 +202,6 @@ public class NCoV19TracerUI extends JFrame{
 		//add more for JCombobox functionality
 
 		JButton traceButton = new JButton("Trace");
-
 		searchPanel.add(searchTitle);
 		searchPanel.add(searchbox);
 		searchPanel.add(traceType);
@@ -212,19 +210,21 @@ public class NCoV19TracerUI extends JFrame{
 		traceButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String contact = searchbox.getText();
-				String traceTypeString = traceType.getSelectedItem().toString(); 
+				String traceTypeString = traceType.getSelectedItem().toString();
 
-				//try if it is an id or name
-				try{
-					Integer.parseInt(contact);
-					//controller function for id here
-				}catch(NumberFormatException ex){
-					//controller function for name here
-				}
+				NCoV19TracerUI.this.showTable(controller.tracerQuery(contact, traceTypeString));
 			}
 		}); 
-
 		this.add(searchPanel);
+	}
+
+	private void showTable(JTable table){
+		JPanel tableResultPanel = new JPanel(new FlowLayout());
+		tableResultPanel.setBounds(10, 120, NCoV19TracerUI.this.getWidth()-20, NCoV19TracerUI.this.getHeight()-180); //make this dynamic
+		tableResultPanel.add(new JScrollPane(table));
+
+		NCoV19TracerUI.this.getContentPane().add(tableResultPanel);
+		revalidate();
 	}
 
 	//modify this to only be included in the contact tracers
@@ -274,7 +274,4 @@ public class NCoV19TracerUI extends JFrame{
 			}
 		});
 	}
-
-	private JTable jtable;
-	private JPanel searchPanel;
 }
