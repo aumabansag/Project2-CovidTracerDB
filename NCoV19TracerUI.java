@@ -3,7 +3,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.concurrent.atomic.AtomicReference;
+import javax.swing.event.*;
 
 public class NCoV19TracerUI extends JFrame{
 	private String establishment;
@@ -33,11 +33,14 @@ public class NCoV19TracerUI extends JFrame{
 		title.setBounds(0, 0, this.getWidth(), 50);
 
 		this.add(title);
-		// //pack();
+		//pack();
 	}
 
 	//login panel 
 	private void initLogin(){
+		this.setJMenuBar(null);
+		this.getContentPane().repaint();
+		loadMenu(false, false);
 		JLabel companyName = new JLabel("Establishment ");
 		JLabel password = new JLabel("Password ");
 		JTextField companyTF = new JTextField(10);
@@ -58,27 +61,110 @@ public class NCoV19TracerUI extends JFrame{
 				String estName = companyTF.getText();
 				String estPass = new String (companyPass.getPassword());
 				//send credentials to the database for checking
-				if(controller.establishmentExists(estName)){
-					establishmentID = controller.logIn(estName, estPass);
-					if(establishmentID>0){
+				establishmentID = controller.logIn(estName, estPass);
+
+				if(controller.establishmentVerified(establishmentID)){
 						NCoV19TracerUI.this.getContentPane().remove(loginPanel);
+						revalidate();
 						if(estName.equals("UPCT19")){ //contact tracers
+							loadMenu(true, true);
 							viewingScreen();
 						}else{ //other establishments
+							loadMenu(false, true);
 							listingScreen();
 						}
-					}else{//wrong password
-						JOptionPane.showMessageDialog(null,"Wrong Password",
-                        "Login Error", JOptionPane.ERROR_MESSAGE);
-					}
 				}else{
 					//establishment does not exists pop up
-					JOptionPane.showMessageDialog(null,"Establishment does not Exist.\nContact"+
-						" the developer to register.","Login Error", JOptionPane.ERROR_MESSAGE);
+					if(establishmentID!=-1)
+						JOptionPane.showMessageDialog(null,"Wrong Name or Password.\nIf your establishment is"
+						+"not yet registered,\nPlease contact the developers.","Login Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
 		this.add(loginPanel);
+		this.revalidate();
+	}
+
+	//JMenu
+	private void loadMenu(boolean tracer, boolean logged){
+		//
+		final JMenuBar menuBar = new JMenuBar();
+
+		if(tracer){ //are contact tracers
+			JButton regBut = new JButton("Register New");
+
+			regBut.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e){ //edit
+					JPanel inputPanel = new JPanel(new GridLayout(4,2,2,2));
+					JTextField id = new JTextField(10);
+					JTextField name = new JTextField(10);
+					JTextField addr = new JTextField(20);
+					JTextField pass = new JTextField(10);
+					inputPanel.add(new JLabel("Estab. ID #"));
+					inputPanel.add(id);
+					inputPanel.add(new JLabel("Name"));
+					inputPanel.add(name);
+					inputPanel.add(new JLabel("Address"));
+					inputPanel.add(addr);
+					inputPanel.add(new JLabel("Password"));
+					inputPanel.add(pass);
+					int i = JOptionPane.showConfirmDialog(null,inputPanel,"Register New Establishment",
+								JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+					if(i==0){
+						try{
+							int idno = Integer.parseInt(id.getText());
+							String[] newEst = new String[4];
+							
+							newEst[0] = id.getText();
+							newEst[1] = name.getText();
+							newEst[2] = addr.getText();
+							newEst[3] = pass.getText(); 
+							controller.regEstablishment(newEst);
+						}catch(NumberFormatException nee){
+							JOptionPane.showMessageDialog(null,"Your entered an invalid ID number.",
+									"Registration Error", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				}
+			});
+			menuBar.add(regBut);
+		}
+
+		JButton aboutBut = new JButton("About");
+		aboutBut.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				JOptionPane.showMessageDialog(null,"COVID19 Tracer App"+
+					"\nThis app is a project for CMSC 127 which digitized the"+
+					"\nfilling of forms in the establishments. This also made"+
+					"\ncontact tracing efficient by implementing DBMS."+
+					"\n\nDevelopers:\nAdrian Mabansag"+
+					"\nSamson Rollo Jr","ABOUT", JOptionPane.INFORMATION_MESSAGE);
+			}
+		});
+
+		menuBar.add(aboutBut);
+		menuBar.add(Box.createHorizontalGlue());
+
+		if(logged){
+			JButton logoutBut = new JButton("LogOut");
+			//logoutBut.set(10,5);
+			logoutBut.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e){
+					int choice = JOptionPane.showConfirmDialog(null,"You are about to log out!","LogOut",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+					if(choice==0){
+						try{
+							NCoV19TracerUI.this.getContentPane().remove(activePanel);
+							revalidate();
+							initLogin();
+						}catch(Exception ne){}
+					}
+				}
+			});
+			menuBar.add(logoutBut);
+		}
+
+		this.setJMenuBar(menuBar);
 	}
 
 	//listing screen for the establishments
@@ -99,12 +185,11 @@ public class NCoV19TracerUI extends JFrame{
 		JTextField idOutField = new JTextField(10);
 		JButton add = new JButton("GO IN");
 		JButton out = new JButton("GO OUT");
-
-		//label for establishment
+		//add label for establishment on top
 
 		JPanel listingPanel = new JPanel(new GridLayout(10,2,2,5));
-		//bounds are set as (frameW-W)/2
-		listingPanel.setBounds(50, 110, this.getWidth()-100, this.getHeight()-160);
+		listingPanel.setBounds(50, 70, this.getWidth()-100, this.getHeight()-160);
+		listingPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
 		listingPanel.add(nameLabel);
 		listingPanel.add(nameField);
@@ -179,29 +264,32 @@ public class NCoV19TracerUI extends JFrame{
 				}
 			}
 		});
+		activePanel = listingPanel;
 		this.add(listingPanel);
+		this.revalidate();
 	}
 
 	//screen for contact tracers
 	private void viewingScreen(){
 		this.getContentPane().repaint();
-		//panel that holds the search engine
+
 		JPanel searchPanel = new JPanel(new FlowLayout());
-		//change the width and height to follow the frame
-		searchPanel.setBounds(10, 60, this.getWidth()-20, 50);
+		searchPanel.setBounds(10, 60, this.getWidth()-20, this.getHeight()-140);
 		//searchPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-
 		JLabel searchTitle = new JLabel("Search", JLabel.LEFT);
-		JTextField searchbox = new JTextField("Name or ID",15);
-
+		JTextField searchbox = new JTextField("Enter ID",15);
 		String[] categories = {"1st-Level Contact","2nd-Level Contact","Establishments"};
 		JComboBox<String> traceType = new JComboBox<>(categories);
-		//add more for JCombobox functionality
-
+		JTextField fromDate = new JTextField("from: yyyy-MM-dd",10);
+		JTextField toDate = new JTextField("to: yyyy-MM-dd",10);
 		JButton traceButton = new JButton("Trace");
+
 		searchPanel.add(searchTitle);
 		searchPanel.add(searchbox);
 		searchPanel.add(traceType);
+		searchPanel.add(fromDate);
+		searchPanel.add(new JLabel(" to "));
+		searchPanel.add(toDate);
 		searchPanel.add(traceButton);
 
 		traceButton.addActionListener(new ActionListener(){
@@ -209,60 +297,37 @@ public class NCoV19TracerUI extends JFrame{
 				String contact = searchbox.getText();
 				String traceTypeString = traceType.getSelectedItem().toString();
 
-				NCoV19TracerUI.this.showTable(controller.tracerQuery(contact, traceTypeString));
+				try{
+					java.sql.Date.valueOf(fromDate.getText());
+					java.sql.Date.valueOf(toDate.getText());
+					NCoV19TracerUI.this.showTable(controller.tracerQuery(contact, traceTypeString,
+									fromDate.getText(), toDate.getText()));
+				}catch(Exception eD){
+					JOptionPane.showMessageDialog(null,"Invalid date input!",
+	                        "Trace Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		}); 
+		activePanel = searchPanel;
 		this.add(searchPanel);
 		this.revalidate();
 	}
 
 	private void showTable(JTable table){
+		Component[] list = NCoV19TracerUI.this.activePanel.getComponents();
+		for(Component c: list)
+			if(c instanceof JPanel)
+				NCoV19TracerUI.this.activePanel.remove(c);
+
+		NCoV19TracerUI.this.activePanel.revalidate();
+		NCoV19TracerUI.this.activePanel.repaint();
+
 		JPanel tableResultPanel = new JPanel(new FlowLayout());
-		tableResultPanel.setBounds(10, 120, NCoV19TracerUI.this.getWidth()-20, NCoV19TracerUI.this.getHeight()-180); //make this dynamic
+		tableResultPanel.setBounds(10, 120, NCoV19TracerUI.this.getWidth()-20, NCoV19TracerUI.this.getHeight()-200); //make this dynamic
 		tableResultPanel.add(new JScrollPane(table));
 
-		NCoV19TracerUI.this.getContentPane().add(tableResultPanel);
-		revalidate();
-	}
-
-	//modify this to only be included in the contact tracers
-	private void initMenu(){
-		final JMenuBar menuBar = new JMenuBar();
-
-		JMenu fileMenu = new JMenu("File");
-		final JMenu aboutMenu = new JMenu("About");
-
-		JMenuItem registerEstab = new JMenuItem("Register New Establishment");
-		registerEstab.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				//add for registering new establishment
-				//use popup
-			}
-		});
-
-		//add more jmenu item for fileMenu
-		JMenuItem updateMenuItem = new JMenuItem("Update DB");
-		updateMenuItem.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				//add for recieving sql file
-			}
-		});
-
-		JMenuItem exitMenuItem = new JMenuItem("Exit");
-		updateMenuItem.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				//perform necessary end for transactions
-			}
-		});
-
-		//add to jmenu
-		fileMenu.add(registerEstab);
-		fileMenu.add(updateMenuItem);
-		fileMenu.add(exitMenuItem);
-
-		menuBar.add(fileMenu);
-		menuBar.add(aboutMenu);
-		this.setJMenuBar(menuBar);
+		NCoV19TracerUI.this.activePanel.add(tableResultPanel);
+		NCoV19TracerUI.this.activePanel.revalidate();
 	}
 
 	public static void main(String[] args){
@@ -272,4 +337,6 @@ public class NCoV19TracerUI extends JFrame{
 			}
 		});
 	}
+
+	private JPanel activePanel;
 }
