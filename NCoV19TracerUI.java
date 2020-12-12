@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
+import java.util.regex.*;
 
 public class NCoV19TracerUI extends JFrame{
 	private String establishment;
@@ -226,13 +227,19 @@ public class NCoV19TracerUI extends JFrame{
 					input[6] = (java.time.LocalDate.now()).toString();
 					input[7] = String.valueOf(establishmentID);
 
-					controller.addRow(input);
-					//ADD POP U{ SAYING THANK YU BETCH}
-					nameField.setText("");
-					idField.setText("");
-					addrField.setText("");
-					ageField.setText("");
-					contNumField.setText("");
+					if(Pattern.matches("^(09)\\d{9}|(\\+639)\\d{9}$",input[4])){
+						System.out.println("validnumber!");
+						controller.addRow(input);
+						//ADD POP U{ SAYING THANK YU BETCH}
+						nameField.setText("");
+						idField.setText("");
+						addrField.setText("");
+						ageField.setText("");
+						contNumField.setText("");
+					}else{
+						JOptionPane.showMessageDialog(null,"Invalid Contact Number",
+				                "Signup Error", JOptionPane.ERROR_MESSAGE);
+					}
 				}else{
 					JOptionPane.showMessageDialog(null,"Person is already IN!",
 	                "Signup Error", JOptionPane.ERROR_MESSAGE);

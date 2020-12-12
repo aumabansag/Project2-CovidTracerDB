@@ -37,7 +37,7 @@ public class NCoV19TracerModel{
                 stmt.setString(2, input[0]); //name
                 stmt.setString(3, input[2]);//address
                 stmt.setInt(4, Integer.parseInt(input[3]));//age
-                stmt.setInt(5, Integer.parseInt(input[4]));//contact #
+                stmt.setString(5, input[4]);//contact #
             
                 stmt.executeUpdate();
                 stmt.close();

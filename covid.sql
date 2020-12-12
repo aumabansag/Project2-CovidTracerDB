@@ -53,7 +53,7 @@ CREATE TABLE `person` (
   `name` varchar(50) NOT NULL,
   `address` varchar(50) NOT NULL,
   `age` int NOT NULL,
-  `contact_no` int NOT NULL,
+  `contact_no` varchar(13) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
