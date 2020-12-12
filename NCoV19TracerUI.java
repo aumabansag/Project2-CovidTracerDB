@@ -43,11 +43,11 @@ public class NCoV19TracerUI extends JFrame{
 		loadMenu(false, false);
 		JLabel companyName = new JLabel("Establishment ");
 		JLabel password = new JLabel("Password ");
-		JTextField companyTF = new JTextField(10);
-		JPasswordField companyPass = new JPasswordField(10);
+		final JTextField companyTF = new JTextField(10);
+		final JPasswordField companyPass = new JPasswordField(10);
 		JButton loginSubmit = new JButton("Login");
 
-		JPanel loginPanel = new JPanel(new GridLayout(3,2,2,5));
+		final JPanel loginPanel = new JPanel(new GridLayout(3,2,2,5));
 		loginPanel.setBounds((this.getWidth()-300)/2, (this.getHeight()-50)/2, 300, 80);
 
 		loginPanel.add(companyName);
@@ -177,12 +177,12 @@ public class NCoV19TracerUI extends JFrame{
 		JLabel ageLabel = new JLabel("Age");
 		JLabel contNumLabel = new JLabel("Contact #");
 		JLabel custIDLabelOut = new JLabel("ID");
-		JTextField nameField = new JTextField(15);
-		JTextField idField = new JTextField(10);
-		JTextField addrField = new JTextField(15);
-		JTextField ageField = new JTextField(2);
-		JTextField contNumField = new JTextField(11);
-		JTextField idOutField = new JTextField(10);
+		final JTextField nameField = new JTextField(15);
+		final JTextField idField = new JTextField(10);
+		final JTextField addrField = new JTextField(15);
+		final JTextField ageField = new JTextField(2);
+		final JTextField contNumField = new JTextField(11);
+		final JTextField idOutField = new JTextField(10);
 		JButton add = new JButton("GO IN");
 		JButton out = new JButton("GO OUT");
 		//add label for establishment on top
@@ -277,11 +277,11 @@ public class NCoV19TracerUI extends JFrame{
 		searchPanel.setBounds(10, 60, this.getWidth()-20, this.getHeight()-140);
 		//searchPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		JLabel searchTitle = new JLabel("Search", JLabel.LEFT);
-		JTextField searchbox = new JTextField("Enter ID",15);
+		final JTextField searchbox = new JTextField("Enter ID",15);
 		String[] categories = {"1st-Level Contact","2nd-Level Contact","Establishments"};
-		JComboBox<String> traceType = new JComboBox<>(categories);
-		JTextField fromDate = new JTextField("from: yyyy-MM-dd",10);
-		JTextField toDate = new JTextField("to: yyyy-MM-dd",10);
+		final JComboBox<String> traceType = new JComboBox<>(categories);
+		final JTextField fromDate = new JTextField("from: yyyy-MM-dd",10);
+		final JTextField toDate = new JTextField("to: yyyy-MM-dd",10);
 		JButton traceButton = new JButton("Trace");
 
 		searchPanel.add(searchTitle);
