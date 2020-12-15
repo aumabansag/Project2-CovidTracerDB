@@ -22,18 +22,24 @@ public class NCoV19TracerModel{
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost/covidDB",
                     "samson", "t325gh9QR*");
-        } catch (SQLException sqlerr) {
-            System.out.println(sqlerr.getSQLState()+":"+sqlerr.getErrorCode());
+        } catch (SQLException sqle) {
+            System.out.println(sqle.getSQLState()+":"+sqle.getErrorCode());
         }
         System.out.println("Connected Successfully");
 	}
 
-    public void insertData(String[] input){
-        if(!personExists(Integer.parseInt(input[1]))){//add new person to person relation
+    public boolean insertData(String[] input){
+        int id;
+        try{
+            id = Integer.parseInt(input[1]);
+        }catch(NumberFormatException nfe){
+            return false;
+        }
+        if(!personExists(id)){//add new person to person relation
             try{
                 String sql = "INSERT INTO person VALUES(?,?,?,?,?)";
                 stmt = connection.prepareStatement(sql);
-                stmt.setInt(1, Integer.parseInt(input[1])); //id
+                stmt.setInt(1, id); //id
                 stmt.setString(2, input[0]); //name
                 stmt.setString(3, input[2]);//address
                 stmt.setInt(4, Integer.parseInt(input[3]));//age
@@ -42,16 +48,15 @@ public class NCoV19TracerModel{
                 stmt.executeUpdate();
                 stmt.close();
             }catch(SQLException sqle){
-                sqle.getMessage();
-                sqle.printStackTrace();
+                System.out.println(sqle.getSQLState()+":"+sqle.getErrorCode());
+                return false;
             }
         }
-
         //add to the visited relation
         try{
             String sql = "INSERT INTO visited VALUES(?,?,?,?,null)";
             stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, Integer.parseInt(input[1]));//person_id
+            stmt.setInt(1, id);//person_id
             stmt.setInt(2, Integer.parseInt(input[7]));//establishment_id
             stmt.setDate(3, java.sql.Date.valueOf(input[6]));//make sure date is converted right
             stmt.setTime(4, java.sql.Time.valueOf(input[5]));//make sure time is converted right
@@ -59,12 +64,13 @@ public class NCoV19TracerModel{
             stmt.executeUpdate(); 
             stmt.close();
         }catch(SQLException sqle){
-            sqle.getMessage();
-                sqle.printStackTrace();
+            System.out.println(sqle.getSQLState()+":"+sqle.getErrorCode());
+            return false;
         }
+        return true;
     }
 
-    public void updateData(int id, String t_Out){
+    public boolean updateData(int id, String t_Out){
         try{
             String sql = "UPDATE visited SET time_out = ? WHERE person_id ="+id;
             stmt = connection.prepareStatement(sql);
@@ -73,35 +79,39 @@ public class NCoV19TracerModel{
             stmt.executeUpdate(); 
             stmt.close();
         }catch(SQLException sqle){
-            sqle.getMessage();
-                sqle.printStackTrace();
+            System.out.println(sqle.getSQLState()+":"+sqle.getErrorCode());
+            return false;
         }
+        return true;
     }
 
-    public void deleteData(){}
+    public boolean deleteData(){
+        return false;
+    }
 
-    public void regEst(String[] input){
-        if(!estabExists(Integer.parseInt(input[0]))){
-             try{
-                String sql = "INSERT INTO establishment VALUES(?,?,?,?)";
-                stmt = connection.prepareStatement(sql);
-                stmt.setInt(1, Integer.parseInt(input[0]));
-                stmt.setString(2, input[1]);
-                stmt.setString(3, input[2]);
-                stmt.setString(4, input[3]);
-                
-                stmt.executeUpdate(); 
-                stmt.close();
-            }catch(SQLException sqle){
-                sqle.getMessage();
-                sqle.printStackTrace();
+    public boolean regEst(String[] input){
+        try{
+            int id = Integer.parseInt(input[0]);
+            if(!estabExists(id)){
+                 try{
+                    String sql = "INSERT INTO establishment VALUES(?,?,?,?)";
+                    stmt = connection.prepareStatement(sql);
+                    stmt.setInt(1, id);
+                    stmt.setString(2, input[1]);
+                    stmt.setString(3, input[2]);
+                    stmt.setString(4, input[3]);
+                    
+                    stmt.executeUpdate(); 
+                    stmt.close();
+                    return true; //success
+                }catch(SQLException sqle){
+                    System.out.println(sqle.getSQLState()+":"+sqle.getErrorCode());
+                }
             }
-            JOptionPane.showMessageDialog(null,"Establishment registered successfully",
-                    "Registration Success", JOptionPane.INFORMATION_MESSAGE);
-        }else{
-            JOptionPane.showMessageDialog(null,"Establishment already exists.",
-                    "Registration Error", JOptionPane.ERROR_MESSAGE);
+        }catch(NumberFormatException nfe){
+            System.out.println("Invalid ID");
         }
+        return false; //all failed
     }
 
     public JTable getTable(int type, int id, String from, String to){
@@ -133,9 +143,7 @@ public class NCoV19TracerModel{
                 }
             };
         }catch(SQLException sqle){
-            sqle.getMessage();
-            sqle.printStackTrace();
-            //add catch for empty JTable
+            System.out.println(sqle.getSQLState()+":"+sqle.getErrorCode());
         }
         return table;
     }
@@ -184,8 +192,7 @@ public class NCoV19TracerModel{
             if(rg.next())
                 return true;
         }catch(SQLException sqle){
-            sqle.getMessage();
-            sqle.printStackTrace();
+            System.out.println(sqle.getSQLState()+":"+sqle.getErrorCode());
         }
         return false;
     }
@@ -206,8 +213,7 @@ public class NCoV19TracerModel{
             if(rg.next())
                 return rg.getInt("id");
         }catch(SQLException sqle){
-            sqle.getMessage();
-            sqle.printStackTrace();
+            System.out.println(sqle.getSQLState()+":"+sqle.getErrorCode());
         }
         return 0;
     }

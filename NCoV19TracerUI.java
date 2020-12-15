@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import java.util.regex.*;
 
 public class NCoV19TracerUI extends JFrame{
 	private String establishment;
@@ -21,7 +20,7 @@ public class NCoV19TracerUI extends JFrame{
 	private void initUI(){
 		//FURNISH THIS
 		setSize(500,500);
-		//setResizable(false);
+		setResizable(false);
 		setLayout(null);
 		//setUndecorated(true);
 		setLocationRelativeTo(null);
@@ -61,7 +60,6 @@ public class NCoV19TracerUI extends JFrame{
 			public void actionPerformed(ActionEvent e){
 				String estName = companyTF.getText();
 				String estPass = new String (companyPass.getPassword());
-				//send credentials to the database for checking
 				establishmentID = controller.logIn(estName, estPass);
 
 				if(controller.establishmentVerified(establishmentID)){
@@ -88,12 +86,10 @@ public class NCoV19TracerUI extends JFrame{
 
 	//JMenu
 	private void loadMenu(boolean tracer, boolean logged){
-		//
 		final JMenuBar menuBar = new JMenuBar();
 
 		if(tracer){ //are contact tracers
 			JButton regBut = new JButton("Register New");
-
 			regBut.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e){ //edit
 					JPanel inputPanel = new JPanel(new GridLayout(4,2,2,2));
@@ -109,21 +105,29 @@ public class NCoV19TracerUI extends JFrame{
 					inputPanel.add(addr);
 					inputPanel.add(new JLabel("Password"));
 					inputPanel.add(pass);
+
 					int i = JOptionPane.showConfirmDialog(null,inputPanel,"Register New Establishment",
 								JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 					if(i==0){
-						try{
-							int idno = Integer.parseInt(id.getText());
+						if(controller.isIDValid(id.getText())){
 							String[] newEst = new String[4];
 							
 							newEst[0] = id.getText();
 							newEst[1] = name.getText();
 							newEst[2] = addr.getText();
 							newEst[3] = pass.getText(); 
-							controller.regEstablishment(newEst);
-						}catch(NumberFormatException nee){
-							JOptionPane.showMessageDialog(null,"Your entered an invalid ID number.",
-									"Registration Error", JOptionPane.ERROR_MESSAGE);
+							boolean success = controller.regEstablishment(newEst); 
+
+							if(success){
+								JOptionPane.showMessageDialog(null,"Establishment registered successfully",
+            				         "Registration Success", JOptionPane.INFORMATION_MESSAGE);
+							}else{
+								JOptionPane.showMessageDialog(null,"ID already exists.",
+            				         "Registration Error", JOptionPane.ERROR_MESSAGE);
+							}
+						}else{
+							JOptionPane.showMessageDialog(null,"Invalid ID.",
+            				         "Registration Error", JOptionPane.ERROR_MESSAGE);
 						}
 					}
 				}
@@ -144,11 +148,10 @@ public class NCoV19TracerUI extends JFrame{
 		});
 
 		menuBar.add(aboutBut);
-		menuBar.add(Box.createHorizontalGlue());
+		menuBar.add(Box.createHorizontalGlue()); //add space between the buttons in the menubar
 
 		if(logged){
 			JButton logoutBut = new JButton("LogOut");
-			//logoutBut.set(10,5);
 			logoutBut.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e){
 					int choice = JOptionPane.showConfirmDialog(null,"You are about to log out!","LogOut",
@@ -158,7 +161,9 @@ public class NCoV19TracerUI extends JFrame{
 							NCoV19TracerUI.this.getContentPane().remove(activePanel);
 							revalidate();
 							initLogin();
-						}catch(Exception ne){}
+						}catch(Exception ne){
+							System.out.println("There is a logout error!");
+						}
 					}
 				}
 			});
@@ -216,56 +221,54 @@ public class NCoV19TracerUI extends JFrame{
 		add.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				//assume all are valid entries
-				if(!controller.userVisited(Integer.parseInt(idField.getText()))){
-					String[] input = new String[8];
-					input[0] = nameField.getText();
-					input[1] = idField.getText();
-					input[2] = addrField.getText();
-					input[3] = ageField.getText();
-					input[4] = contNumField.getText();
-					input[5] = (java.time.LocalTime.now()).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")).toString();//(java.time.LocalTime.now()).toString(); //change to date fromat later
-					input[6] = (java.time.LocalDate.now()).toString();
-					input[7] = String.valueOf(establishmentID);
-
-					if(Pattern.matches("^(09)\\d{9}|(\\+639)\\d{9}$",input[4])){
-						System.out.println("validnumber!");
-						controller.addRow(input);
-						//ADD POP U{ SAYING THANK YU BETCH}
-						nameField.setText("");
-						idField.setText("");
-						addrField.setText("");
-						ageField.setText("");
-						contNumField.setText("");
+				if(controller.isIDValid(idField.getText())){
+					if(!controller.userVisited(Integer.parseInt(idField.getText()))){
+						if(controller.isPhoneValid(contNumField.getText())){
+							String[] input = new String[8];
+							input[0] = nameField.getText();
+							input[1] = idField.getText();
+							input[2] = addrField.getText();
+							input[3] = ageField.getText();
+							input[4] = contNumField.getText();
+							input[5] = (java.time.LocalTime.now()).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")).toString();//(java.time.LocalTime.now()).toString(); //change to date fromat later
+							input[6] = (java.time.LocalDate.now()).toString();
+							input[7] = String.valueOf(establishmentID);
+							controller.addRow(input);
+							nameField.setText("");
+							idField.setText("");
+							addrField.setText("");
+							ageField.setText("");
+							contNumField.setText("");
+						}else{
+							JOptionPane.showMessageDialog(null,"Invalid Contact Number",
+					            "Signup Error", JOptionPane.ERROR_MESSAGE);
+						}
 					}else{
-						JOptionPane.showMessageDialog(null,"Invalid Contact Number",
-				                "Signup Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null,"Person is already IN!",
+		                	"Signup Error", JOptionPane.ERROR_MESSAGE);
 					}
 				}else{
-					JOptionPane.showMessageDialog(null,"Person is already IN!",
-	                "Signup Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null,"Invalid ID.",
+            			"Registration Error", JOptionPane.ERROR_MESSAGE);
 				}
-
 			}
 		});
 
 		out.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent f){
-				try{
+				if(controller.isIDValid(idOutField.getText())){
 					int id = Integer.parseInt(idOutField.getText());
-					//check if id is in the db, else pop up error
-						if(controller.userVisited(id)){
-							String outTime = (java.time.LocalTime.now()).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")).toString();
-							controller.updateRow(id, outTime);
-							idOutField.setText("");
-							JOptionPane.showMessageDialog(null,"Thank you come again!",
-	                        "Sign out", JOptionPane.INFORMATION_MESSAGE);
-						}else{
-							JOptionPane.showMessageDialog(null,"Person is not in yet!",
+					if(controller.userVisited(id)){
+						String outTime = (java.time.LocalTime.now()).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")).toString();
+						controller.updateRow(id, outTime);
+						idOutField.setText("");
+						JOptionPane.showMessageDialog(null,"Thank you come again!",
+	                       "Sign out", JOptionPane.INFORMATION_MESSAGE);
+					}else{
+						JOptionPane.showMessageDialog(null,"Person is not in yet!",
 	                        "Sign out Error", JOptionPane.ERROR_MESSAGE);
-						}
-
-				}catch(NumberFormatException nf){
-					nf.printStackTrace();
+					}
+				}else{
 					JOptionPane.showMessageDialog(null,"Not an ID number!",
 	                "Sign out Error", JOptionPane.ERROR_MESSAGE);
 				}

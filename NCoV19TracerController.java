@@ -1,6 +1,7 @@
 //package NCoV19TracerApp;
 
 import javax.swing.JTable;
+import java.util.regex.*;
 
 public class NCoV19TracerController{
 	private NCoV19TracerUI ui;
@@ -17,8 +18,8 @@ public class NCoV19TracerController{
 		model.insertData(input);
 	}
 
-	public void regEstablishment(String[] input){
-		model.regEst(input);
+	public boolean regEstablishment(String[] input){
+		return model.regEst(input);
 	}
 
 	public void updateRow(int id, String t_Out){
@@ -35,23 +36,39 @@ public class NCoV19TracerController{
 	}
 
 	public JTable tracerQuery(String contact, String type, String from, String to){
-		int id;
-		try{//id
-			id = Integer.parseInt(contact);
+		try{
+			int id = Integer.parseInt(contact);
+
+			if(!model.personExists(id)){
+				javax.swing.JOptionPane.showMessageDialog(null,"No person in the database!","Search Error", 
+					javax.swing.JOptionPane.ERROR_MESSAGE);
+			}else{
+				return model.getTable(getQueryType(type), id, from, to);
+			}
 		}catch(NumberFormatException ne){ //name
-			//id = getID(contact);
-			javax.swing.JOptionPane.showMessageDialog(null,"Please enter a valid ID number.","Trace Error",
+			javax.swing.JOptionPane.showMessageDialog(null,"Please enter a valid ID number.","Search Error",
 				 javax.swing.JOptionPane.ERROR_MESSAGE);
 			return null;
 		}	
-		if(id==0 || !model.personExists(id)){
-			javax.swing.JOptionPane.showMessageDialog(null,"No person in the database!","Search Error", javax.swing.JOptionPane.ERROR_MESSAGE);
-		}else{
-			return model.getTable(getQueryType(type), id, from, to);
-		}
 		return null;
 	}
 	
+	public boolean isIDValid(String id){
+		try{
+			Integer.parseInt(id);
+			return true;
+		}catch(NumberFormatException nfe){
+			return false;
+		}
+	}
+
+	public boolean isPhoneValid(String phone){
+		if(Pattern.matches("^(09)\\d{9}|(\\+639)\\d{9}$",phone))
+			return true;
+		else
+			return false;
+	}
+
 	public boolean establishmentExists(int id){
 		return model.estabExists(id);
 	}
