@@ -309,7 +309,6 @@ public class NCoV19TracerUI extends JFrame{
 			}
 		});
 		mainPanel.add("b",listingPanel);
-		System.out.println("b");
 		//this.revalidate();
 	}
 
@@ -360,7 +359,6 @@ public class NCoV19TracerUI extends JFrame{
 			}
 		}); 
 		mainPanel.add("c",searchPanel);
-		System.out.println("c added");
 		//this.revalidate();
 	}
 
@@ -370,7 +368,6 @@ public class NCoV19TracerUI extends JFrame{
 		tableResultPanel.add(new JScrollPane(table));
 
 		mainPanel.add("d",tableResultPanel);
-		System.out.println("d");
 	}
 	
 	private void setScreen(int screenState){
