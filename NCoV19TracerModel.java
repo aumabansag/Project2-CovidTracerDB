@@ -119,11 +119,11 @@ public class NCoV19TracerModel{
         javax.swing.JTable table = null;
 
         if(type==0){ //1st level
-                query = "SELECT person.name, contact_no, address FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id= ? AND date BETWEEN ? AND ? )  AND date BETWEEN ? AND ? ;";
+                query = "SELECT DISTINCT person.id AS ID, person.name, contact_no, address FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id= ? AND date BETWEEN ? AND ? )  AND date BETWEEN ? AND ? ORDER BY address, person.name;";
             }else if(type==1){ //2 level contacts
-                query = "SELECT person.name, contact_no, address FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id IN (SELECT person.id FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id= ?  AND date BETWEEN ? AND ?) AND date BETWEEN ? AND ? ));";
+                query = "SELECT DISTINCT person.id AS ID, person.name, contact_no, address FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id IN (SELECT person.id FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id= ?  AND date BETWEEN ? AND ?) AND date BETWEEN ? AND ? )) ORDER BY address, person.name;";
             }else{ //establishment visited
-                query = "SELECT establishment.id AS ID, name AS VISITED, address AS ADDRESS FROM establishment, visited WHERE visited.establishment_id=establishment.id AND visited.person_id = ? AND date BETWEEN ? AND ? ;";
+                query = "SELECT DISTINCT establishment.id AS ID, name AS VISITED, address AS ADDRESS FROM establishment, visited WHERE visited.establishment_id=establishment.id AND visited.person_id = ? AND date BETWEEN ? AND ? ORDER BY name, address;";
             }
             
         try{
