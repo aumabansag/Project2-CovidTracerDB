@@ -18,6 +18,8 @@ public class NCoV19TracerUI extends JFrame{
 	
 	private CardLayout cardLayout;
 	private JPanel mainPanel;
+	
+	private JPasswordField companyPass;
 
 	//constructor
 	public NCoV19TracerUI(){
@@ -28,13 +30,11 @@ public class NCoV19TracerUI extends JFrame{
 	//initialize the UI for the user
 	private void initUI(){
 		//FURNISH THIS
-		//setSize(500,500);
+		setSize(500,500);
 		setResizable(false);
 		setTitle("UP Contact Tracer");
 		
 		cardLayout = new CardLayout();
-		setLayout(null);
-		
 		mainPanel = new JPanel();
 		//mainPanel.setPreferredSize(new Dimension(500,200));
 		mainPanel.setLayout(cardLayout);
@@ -53,7 +53,7 @@ public class NCoV19TracerUI extends JFrame{
 
 		//this.add(title);
 		//pack();
-		
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		mainPanel.setVisible(true);
 		this.add(mainPanel);
 		setScreen(1);
@@ -69,7 +69,7 @@ public class NCoV19TracerUI extends JFrame{
 		companyName.setPreferredSize(new Dimension(250,50));
 		final JTextField companyTF = new JTextField(10);
 		companyName.setPreferredSize(new Dimension(250,50));
-		final JPasswordField companyPass = new JPasswordField(10);
+		companyPass = new JPasswordField(10);
 		companyName.setPreferredSize(new Dimension(250,50));
 		JButton loginSubmit = new JButton("Login");
 		companyName.setPreferredSize(new Dimension(250,50));
@@ -209,7 +209,7 @@ public class NCoV19TracerUI extends JFrame{
 	
 	//listing screen for the establishments
 	private void listingScreen(){
-		JLabel estLabel =  new JLabel(establishment);
+		//JLabel estLabel =  new JLabel(establishment);
 		JLabel nameLabel = new JLabel("Name ");
 		JLabel iDLabel = new JLabel("ID");
 		JLabel addrLabel = new JLabel("Address");
@@ -229,8 +229,9 @@ public class NCoV19TracerUI extends JFrame{
 		JPanel listingPanel = new JPanel(new GridLayout(10,2,2,5));
 		//listingPanel.setBounds(50, 70, this.getWidth()-100, this.getHeight()-160);
 		listingPanel.setPreferredSize(new Dimension(500,500));
-		listingPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-
+		listingPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK),BorderFactory.createEmptyBorder(10,10,10,10)));
+		
+		//add to card
 		listingPanel.add(nameLabel);
 		listingPanel.add(nameField);
 		listingPanel.add(iDLabel);
@@ -247,7 +248,6 @@ public class NCoV19TracerUI extends JFrame{
 		listingPanel.add(new JLabel(""));
 		listingPanel.add(new JLabel(""));
 		listingPanel.add(new JLabel(""));
-
 		listingPanel.add(custIDLabelOut);
 		listingPanel.add(idOutField);
 		listingPanel.add(out);
@@ -377,7 +377,8 @@ public class NCoV19TracerUI extends JFrame{
 				activePanel = 1;
 				cardLayout.show(mainPanel,"a");
 				setMenu(1);
-				mainPanel.setSize(500,140); 
+				companyPass.setText("");
+				mainPanel.setPreferredSize(new Dimension(400,140)); 
 				this.setPreferredSize(new Dimension (500,200));
 				pack();
 			break;
@@ -386,8 +387,7 @@ public class NCoV19TracerUI extends JFrame{
 				activePanel = 2;
 				cardLayout.show(mainPanel, "b");
 				setMenu(2);
-				//loadMenu(true,true);
-				mainPanel.setSize(500,440); 
+				mainPanel.setPreferredSize(new Dimension(400,440)); 
 				this.setPreferredSize(new Dimension (500,500));
 				pack();
 			break;
@@ -396,7 +396,7 @@ public class NCoV19TracerUI extends JFrame{
 				activePanel = 3;
 				cardLayout.show(mainPanel, "c");
 				setMenu(3);
-				mainPanel.setSize(500,140); 
+				mainPanel.setPreferredSize(new Dimension(400,140));
 				this.setPreferredSize(new Dimension (500,200));
 				pack();
 			break;
@@ -405,7 +405,7 @@ public class NCoV19TracerUI extends JFrame{
 				activePanel = 4;
 				cardLayout.show(mainPanel, "d");
 				setMenu(4);
-				mainPanel.setSize(500,500);
+				mainPanel.setPreferredSize(new Dimension(400,400));
 				this.setPreferredSize(new Dimension(500,500));
 				pack();
 			break;
