@@ -1,7 +1,7 @@
 //package NCoV19TracerApp;
 
 import java.sql.*;
-import javax.swing.*;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import java.util.Vector;
 
