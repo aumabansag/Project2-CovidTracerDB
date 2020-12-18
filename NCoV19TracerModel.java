@@ -4,14 +4,32 @@ import java.sql.*;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import java.util.Vector;
+import java.io.*;
+import java.io.FileNotFoundException;
 
 public class NCoV19TracerModel{
 	
+	NCoV19TracerController cont;
     Connection connection;
     PreparedStatement stmt;
 
-	//Constructor
-	public NCoV19TracerModel(){
+    //Constructor
+	public NCoV19TracerModel(NCoV19TracerController cont){ // didid na igtest if mayda connection
+		this.cont = cont;
+		String[] dBlogin = getDBLogin();
+		initConnection(dBlogin[0], dBlogin[1]);
+	}
+
+	public NCoV19TracerModel(NCoV19TracerController cont, String user, String pass){
+		this.cont = cont;
+		initConnection(user, pass);
+	}
+
+	private void initConnection(String user, String pass){
+		System.out.println("Connecting to Database.......");
+		if(cont.getCode()==1045)
+			setDBLogIn(user, pass);
+
 		try{
 			Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
         } catch (Exception e) {
@@ -20,12 +38,46 @@ public class NCoV19TracerModel{
         }
         
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost/covidDB",
-                    "samson", "t325gh9QR*");
+            String url = "jdbc:mysql://localhost:/covidDB";
+            connection = DriverManager.getConnection(url, user, pass);
+            System.out.println("Connected Successfully");
+            cont.setCode(200);
         } catch (SQLException sqle) {
             System.out.println(sqle.getSQLState()+":"+sqle.getErrorCode());
+             if(sqle.getErrorCode()==1045){ //wrong credentials
+	        	System.out.println("No login info!");
+	          	cont.setCode(1045);
+	        }
         }
-        System.out.println("Connected Successfully");
+	}
+
+	private void setDBLogIn(String user, String pass){
+		File file = new File("usr.ldb");
+
+		try{
+			if(!file.exists())
+				file.createNewFile();
+
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+			bw.write(user);
+			bw.newLine();
+			bw.write(pass);
+			bw.close();
+		}catch(IOException e){}
+	}
+
+	private String[] getDBLogin(){
+		String[] dBlogin ={"",""};
+		try{
+			BufferedReader bf = new BufferedReader(new FileReader(new File("usr.ldb")));
+			String st;
+			int i = 0;
+			while((st = bf.readLine())!=null || i<2)
+				dBlogin[i++] = st;
+			bf.close();
+		}catch(Exception e){}
+
+		return dBlogin;
 	}
 
     public boolean insertData(String[] input){

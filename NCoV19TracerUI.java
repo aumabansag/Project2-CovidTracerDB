@@ -369,6 +369,29 @@ public class NCoV19TracerUI extends JFrame{
 
 		mainPanel.add("d",tableResultPanel);
 	}
+
+	public String[] askCreden(){
+		String[] creden = {"",""};
+		JPanel inputPanel = new JPanel(new GridLayout(4,2,2,2));
+		JTextField name = new JTextField(15);
+		JTextField pass = new JTextField(15);
+		inputPanel.add(new JLabel("DB username"));
+		inputPanel.add(name);
+		inputPanel.add(new JLabel("Password"));
+		inputPanel.add(pass);
+
+		int i = JOptionPane.showConfirmDialog(null,inputPanel,"Login to MYSQL DATABASE",
+			JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+		if(i==2){
+			System.exit(1);
+		}
+
+		creden[0] = name.getText();
+		creden[1] = pass.getText();
+
+		return creden;
+	}
 	
 	private void setScreen(int screenState){
 		switch(screenState){
@@ -413,7 +436,7 @@ public class NCoV19TracerUI extends JFrame{
 		this.repaint();
 		this.revalidate();
 	}
-	
+
 	public static void main(String[] args){
 		EventQueue.invokeLater(new Runnable(){
 			public void run(){

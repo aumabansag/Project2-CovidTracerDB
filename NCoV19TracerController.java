@@ -6,12 +6,17 @@ import java.util.regex.*;
 public class NCoV19TracerController{
 	private NCoV19TracerUI ui;
 	private NCoV19TracerModel model = null;
+	public int responseCode = 200;
 
 	public NCoV19TracerController(){}
 
 	public NCoV19TracerController(NCoV19TracerUI ui){
 		this.ui = ui;
-		model = new NCoV19TracerModel();
+		model = new NCoV19TracerModel(this);
+		while(responseCode==1045){
+			String[] creden = ui.askCreden();
+			model = new NCoV19TracerModel(this, creden[0], creden[1]);
+		}
 	}
 
 	public void addRow(String[] input){
@@ -87,6 +92,14 @@ public class NCoV19TracerController{
 
 	public NCoV19TracerModel getModel(){
 		return model;
+	}
+
+	public int getCode(){
+		return responseCode;
+	}
+
+	public void setCode(int code){
+		this.responseCode = code;
 	}
 
 	private int getQueryType(String type){
