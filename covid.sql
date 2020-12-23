@@ -37,7 +37,7 @@ CREATE TABLE `establishment` (
 
 LOCK TABLES `establishment` WRITE;
 /*!40000 ALTER TABLE `establishment` DISABLE KEYS */;
-INSERT INTO `establishment` VALUES (1,'Jollibee','Nijaga','jollibee'),(2,'Mercury','Nijaga','mercurymag'),(3,'Mercury','Magsaysay','mercuryni'),(4,'OLPHI','Magsaysay','olphi'),(6,'Cathedral','JD Avelino','cathedral');
+INSERT INTO `establishment` VALUES (1,'Jollibee','Nijaga','jollibee'),(2,'Mercury','Nijaga','mercurymag'),(3,'Mercury','Magsaysay','mercuryni'),(4,'OLPHI','Magsaysay','olphi'),(5,'UPCT19','Magsaysay','1234'), (6,'Cathedral','JD Avelino','cathedral');
 /*!40000 ALTER TABLE `establishment` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -1,9 +1,12 @@
 //package Covid19TracerApp;
-
+package tracerapp;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.table.*;
 
 public class NCoV19TracerUI extends JFrame{
 	private String establishment;
@@ -353,7 +356,7 @@ public class NCoV19TracerUI extends JFrame{
 					
 					setScreen(4);
 				}catch(Exception eD){
-					JOptionPane.showMessageDialog(null,"Invalid date input!",
+					JOptionPane.showMessageDialog(null,"Tracing Error!",
 	                        "Trace Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -362,10 +365,55 @@ public class NCoV19TracerUI extends JFrame{
 		//this.revalidate();
 	}
 
-	private void setTable(JTable table){
+	private void setTable(final JTable table){
+		
+		JTableHeader header = table.getTableHeader();
+		TableColumnModel tmc = header.getColumnModel();
+		
+		header.setReorderingAllowed(false);
+        tmc.getColumn(0).setHeaderValue("ID");
+        tmc.getColumn(1).setHeaderValue("Name");
+        tmc.getColumn(2).setHeaderValue("Contact Number");
+        tmc.getColumn(3).setHeaderValue("Address");
+        
+        
 		JPanel tableResultPanel = new JPanel(new FlowLayout());
-		tableResultPanel.setBounds(10, 120, NCoV19TracerUI.this.getWidth()-20, NCoV19TracerUI.this.getHeight()-200); //make this dynamic
+		tableResultPanel.setBounds(10, 120, this.getWidth()-20, this.getHeight()-200); //make this dynamic
+		
+		JButton exportButton = new JButton("Export");
+		exportButton.setPreferredSize(new Dimension(200,50));
+		exportButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent evt){
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setDialogTitle("Specify a file save");
+				int choice = fileChooser.showSaveDialog(NCoV19TracerUI.this);
+				if(choice == JFileChooser.APPROVE_OPTION){
+					File file = fileChooser.getSelectedFile();
+					FileWriter fw;
+					try {
+						fw = new FileWriter(file);
+						BufferedWriter bw = new BufferedWriter(fw);
+						for(int i = 0; i < table.getRowCount(); i++){
+							for(int j = 0; j < table.getColumnCount(); j++){
+								bw.write(table.getValueAt(i,j).toString()+",");
+							}
+							bw.newLine();
+						}
+						bw.close();
+						fw.close();
+						JOptionPane.showMessageDialog(NCoV19TracerUI.this, "Export was successful!", "EXPORT SUCCESS", JOptionPane.INFORMATION_MESSAGE);
+					} catch (IOException e) {
+						//e.printStackTrace();
+						JOptionPane.showMessageDialog(NCoV19TracerUI.this, "Error in exporting file!", "EXPORT ERROR", JOptionPane.ERROR_MESSAGE);
+					}
+					
+				}
+			}
+		});
+
 		tableResultPanel.add(new JScrollPane(table));
+		tableResultPanel.add(exportButton);
+		
 
 		mainPanel.add("d",tableResultPanel);
 	}
@@ -429,7 +477,7 @@ public class NCoV19TracerUI extends JFrame{
 				cardLayout.show(mainPanel, "d");
 				setMenu(4);
 				mainPanel.setPreferredSize(new Dimension(400,400));
-				this.setPreferredSize(new Dimension(500,500));
+				this.setPreferredSize(new Dimension(500,600));
 				pack();
 			break;
 		}
