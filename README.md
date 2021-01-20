@@ -6,7 +6,7 @@ enter an establishment. This project also is a centralized app, although this st
 
 The app has three components that follows the 3tier architechture. ....
 
-# DERICTION FOR USE
+# DIRECTION FOR USE
 1. Make sure you installed jbdc and added it to your classpath.
 2. Import covid.sql to mySQL with database name of "covidDB".
 3. Compile the java documents and run UI or the Model.
