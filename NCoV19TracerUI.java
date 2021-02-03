@@ -93,7 +93,7 @@ public class NCoV19TracerUI extends JFrame{
 				establishmentID = controller.logIn(estName, estPass);
 
 				if(controller.establishmentVerified(establishmentID)){
-						if(estName.equals("UPCT19")){ //contact tracers
+						if(establishmentID==0){ //contact tracers
 							setScreen(3);
 							setMenu(3);
 						}else{ //other establishments
