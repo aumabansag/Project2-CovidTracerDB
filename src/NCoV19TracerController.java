@@ -79,7 +79,7 @@ public class NCoV19TracerController{
 	}
 
 	public boolean establishmentVerified(int id){
-		return id>-1;
+		return id > -1;
 	}
 
 	public boolean userVisited(int id){

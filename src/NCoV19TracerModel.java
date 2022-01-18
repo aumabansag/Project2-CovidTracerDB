@@ -251,6 +251,7 @@ public class NCoV19TracerModel{
     }
 
      public int verifyLogin(String name, String pass){
+        //System.out.println("SELECT * from establishment where name= '"+name+"' AND password= '"+pass+"';");
         return getID("SELECT * from establishment where name= '"+name+"' AND password= '"+pass+"'");
     }
     //atomize with estab exists
@@ -268,7 +269,7 @@ public class NCoV19TracerModel{
         }catch(SQLException sqle){
             System.out.println(sqle.getSQLState()+":"+sqle.getErrorCode());
         }
-        return 0;
+        return -1;
     }
 
     public Connection getConnection(){

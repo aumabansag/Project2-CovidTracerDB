@@ -157,12 +157,14 @@ public class NCoV19Installer{
 		fileChooser.addChoosableFileFilter(fnef);
 
 		if(fileChooser.showOpenDialog(null)==JFileChooser.APPROVE_OPTION){
-			String path = fileChooser.getSelectedFile().getPath();
+			//String path = fileChooser.getSelectedFile().getPath();
+			String path = fileChooser.getSelectedFile().getName();
+			System.out.println(path);
 			//concurrent please wait
 			ProcessBuilder pb = new ProcessBuilder();
 
 			if((System.getProperty("os.name").toLowerCase()).startsWith("windows")){ //windows 
-				pb.command("cmd.exe", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDB< "+path);
+				pb.command("cmd.exe", "/c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDB < "+path);
 			}else{ //linux 
 				pb.command("/bin/bash", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDB< "+path);
 			}

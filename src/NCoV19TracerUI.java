@@ -35,6 +35,7 @@ public class NCoV19TracerUI extends JFrame{
 		setSize(500,500);
 		setResizable(false);
 		setTitle("UP Contact Tracer");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		cardLayout = new CardLayout();
 		mainPanel = new JPanel();
@@ -93,10 +94,12 @@ public class NCoV19TracerUI extends JFrame{
 				String estPass = new String (companyPass.getPassword());
 				//System.out.println(estPass);
 				establishmentID = controller.logIn(estName, estPass);
-				System.out.println(establishmentID);
+				//System.out.println(establishmentID);
+				//System.out.println(controller.establishmentVerified(establishmentID));
 
 				if(controller.establishmentVerified(establishmentID)){
 						if(establishmentID==0){ //contact tracers
+							//System.out.println("NO BUENO 0");
 							setScreen(3);
 							setMenu(3);
 						}else{ //other establishments
@@ -107,7 +110,6 @@ public class NCoV19TracerUI extends JFrame{
 						}
 				}else{
 					//establishment does not exists pop up
-					if(establishmentID!=-1)
 						JOptionPane.showMessageDialog(null,"Wrong Name or Password.\nIf your establishment is"
 						+"not yet registered,\nPlease contact the developers.","Login Error", JOptionPane.ERROR_MESSAGE);
 				}
