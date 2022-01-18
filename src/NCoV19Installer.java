@@ -19,6 +19,7 @@ public class NCoV19Installer{
 			reportError(pr);
 		}
 		pr = importAdditionalSQL(creden);
+		System.out.println(pr.getMessage());
 
 		if(!pr.getStatus()){
 			if(!createContactTracerAccount()){
@@ -69,33 +70,34 @@ public class NCoV19Installer{
 	private ProcessReport importDDL(String[] creden){
 		//create a database
 		ProcessReport pp = createDatabase(creden[0], creden[1]);
-		if(!pp.getStatus())
+		if(!pp.getStatus()){
 			return pp;
+		}
 
 		ProcessBuilder pb = new ProcessBuilder();
 
-		if((System.getProperty("os.name").toLowerCase()).equals("windows")){ //windows installer
-			pb.command("cmd.exe", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDb01 < covidDDL.sql");
+		//System.out.println(System.getProperty("os.name").toLowerCase());
+		if((System.getProperty("os.name").toLowerCase()).startsWith("windows")){ //windows installer
+			pb.command("cmd.exe", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDB < covidDDL.sql");
 		}else{ //linux installer
-			pb.command("/bin/bash", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDb01 < covidDDL.sql");
+			pb.command("/bin/bash", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDB< covidDDL.sql");
 		}
+		
 		pb.redirectErrorStream(true);
 		try{
 			Process p =	pb.start();
 			BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        	while (true) {
-        	   String line = r.readLine();
-        	    if (line == null) { break; }
+			String line;
+        	while ((line = r.readLine()) != null && line.length() > 0) {
         	    if(line.toLowerCase().contains("covidddl.sql: no such file")){
-        	    	p.destroy();
+        	    	p.destroy();					
         	    	return new ProcessReport(2, false, "Missing CovidDDL");
         	    }
         	}
 		}catch(IOException ioe){
 			return new ProcessReport(3, false, "cannot access shell");
 		}
-
-		return new ProcessReport(100, true, "Succes");
+		return new ProcessReport(100, true, "Success");
 	}
 
 	private ProcessReport createDatabase(String user, String pass){
@@ -107,7 +109,7 @@ public class NCoV19Installer{
         }
         
         try {
-            String url = "jdbc:mysql://localhost:/covidDb01?createDatabaseIfNotExist=true";
+            String url = "jdbc:mysql://localhost:/covidDB?createDatabaseIfNotExist=true";
             connection = DriverManager.getConnection(url, user, pass);
             setDBLogIn(user, pass);
         } catch (SQLException sqle) {
@@ -157,10 +159,10 @@ public class NCoV19Installer{
 			//concurrent please wait
 			ProcessBuilder pb = new ProcessBuilder();
 
-			if((System.getProperty("os.name").toLowerCase()).equals("windows")){ //windows 
-				pb.command("cmd.exe", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDb01 < "+path);
+			if((System.getProperty("os.name").toLowerCase()).startsWith("windows")){ //windows 
+				pb.command("cmd.exe", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDB< "+path);
 			}else{ //linux 
-				pb.command("/bin/bash", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDb01 < "+path);
+				pb.command("/bin/bash", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDB< "+path);
 			}
 			pb.redirectErrorStream(true);
 			try{
@@ -180,7 +182,8 @@ public class NCoV19Installer{
 	}
 
 	private void setDBLogIn(String user, String pass){
-		File file = new File("usr.ldb");
+		File file = new File("src/usr.ldb");
+		System.out.println(file.getAbsolutePath());
 
 		try{
 			if(!file.exists())
@@ -212,7 +215,7 @@ public class NCoV19Installer{
 		//drop db
 		try{
 			Statement stmt = connection.createStatement();
-			stmt.executeUpdate("DROP DATABASE covidDb01");
+			stmt.executeUpdate("DROP DATABASE covidDB");
 			stmt.close();	
 		}catch(SQLException sqle){}
 	}

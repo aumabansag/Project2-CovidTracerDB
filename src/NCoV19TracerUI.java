@@ -1,5 +1,4 @@
 //package Covid19TracerApp;
-package tracerapp;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -70,7 +69,8 @@ public class NCoV19TracerUI extends JFrame{
 		companyName.setPreferredSize(new Dimension(250,50));
 		JLabel password = new JLabel("Password ");
 		companyName.setPreferredSize(new Dimension(250,50));
-		final JTextField companyTF = new JTextField(10);
+		//final JTextField companyTF = new JTextField(10);
+		JTextField companyTF = new JTextField(10);
 		companyName.setPreferredSize(new Dimension(250,50));
 		companyPass = new JPasswordField(10);
 		companyName.setPreferredSize(new Dimension(250,50));
@@ -89,8 +89,11 @@ public class NCoV19TracerUI extends JFrame{
 		loginSubmit.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String estName = companyTF.getText();
+				//System.out.println(estName);
 				String estPass = new String (companyPass.getPassword());
+				//System.out.println(estPass);
 				establishmentID = controller.logIn(estName, estPass);
+				System.out.println(establishmentID);
 
 				if(controller.establishmentVerified(establishmentID)){
 						if(establishmentID==0){ //contact tracers

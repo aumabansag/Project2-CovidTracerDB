@@ -1,13 +1,18 @@
-# Project2-CovidTracerDB
-CMSC 127 Project 2
+## Getting Started
 
-This is a simple project the course CMSC 127 which utilizes java and mysql. This project's purpose is to create a substitute for the paper registration once you
-enter an establishment. This project also is a centralized app, although this still does not implement concurrency.
+Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
 
-The app has three components that follows the 3tier architechture. ....
+## Folder Structure
 
-# DIRECTION FOR USE
-1. Make sure you installed jbdc and added it to your classpath.
-2. Import covid.sql to mySQL with database name of "covidDB".
-3. Compile the java documents and run UI or the Model.
-4. First time users need to enter their username and pass for their mysql.
+The workspace contains two folders by default, where:
+
+- `src`: the folder to maintain sources
+- `lib`: the folder to maintain dependencies
+
+Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+
+> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+
+## Dependency Management
+
+The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).

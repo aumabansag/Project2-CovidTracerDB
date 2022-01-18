@@ -38,6 +38,7 @@ public class NCoV19TracerModel{
         }
         
         try {
+            //String url = "jdbc:mysql://localhost:/covidDB";
             String url = "jdbc:mysql://localhost:/covidDB";
             connection = DriverManager.getConnection(url, user, pass);
             System.out.println("Connected Successfully");
@@ -52,7 +53,7 @@ public class NCoV19TracerModel{
 	}
 
 	private void setDBLogIn(String user, String pass){
-		File file = new File("usr.ldb");
+		File file = new File("/src/usr.ldb");
 
 		try{
 			if(!file.exists())
@@ -69,7 +70,7 @@ public class NCoV19TracerModel{
 	private String[] getDBLogin(){
 		String[] dBlogin ={"",""};
 		try{
-			BufferedReader bf = new BufferedReader(new FileReader(new File("usr.ldb")));
+			BufferedReader bf = new BufferedReader(new FileReader(new File("src/usr.ldb")));
 			String st;
 			int i = 0;
 			while((st = bf.readLine())!=null || i<2)
