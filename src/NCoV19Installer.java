@@ -6,6 +6,7 @@ import java.io.*;
 import java.awt.*;
 import javax.swing.*;
 import java.sql.*;
+import java.util.Map;
 
 public class NCoV19Installer{
 
@@ -78,12 +79,13 @@ public class NCoV19Installer{
 
 		//System.out.println(System.getProperty("os.name").toLowerCase());
 		if((System.getProperty("os.name").toLowerCase()).startsWith("windows")){ //windows installer
-			pb.command("cmd.exe", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDB < covidDDL.sql");
+			pb.command("cmd.exe", "/c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDB < covidDDL.sql");
 		}else{ //linux installer
-			pb.command("/bin/bash", "-c", "mysql -u "+creden[0]+" -p"+creden[1]+" covidDB< covidDDL.sql");
+			pb.command("/bin/bash", "-c", "mysql -u "+creden[0]+" -p "+creden[1]+" covidDB < covidDDL.sql");
 		}
 		
 		pb.redirectErrorStream(true);
+
 		try{
 			Process p =	pb.start();
 			BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
