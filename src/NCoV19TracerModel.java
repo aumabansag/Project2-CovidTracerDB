@@ -174,8 +174,8 @@ public class NCoV19TracerModel{
         if(type==0){ //1st level
                 query = "SELECT DISTINCT person.id AS ID, person.name, contact_no, address FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id= ? AND date BETWEEN ? AND ? )  AND date BETWEEN ? AND ? ORDER BY address, person.name;";
             }else if(type==1){ //2 level contacts
-                query = "SELECT DISTINCT person.id AS ID, person.name, contact_no, address FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id IN (SELECT person.id FROM visited, person WHERE person.id=visited.person_id AND visited.establishment_id IN (SELECT establishment_id FROM visited WHERE person_id= ?  AND date BETWEEN ? AND ?) AND date BETWEEN ? AND ? )) ORDER BY address, person.name;";
-            }else{ //establishment visited
+                query = "SELECT DISTINCT person_id as ID, person.name, contact_no, address FROM visited JOIN person on person_id = person.id WHERE establishment_id IN (SELECT DISTINCT establishment_id FROM visited where person_id in (SELECT DISTINCT person_id FROM visited WHERE establishment_id IN (SELECT DISTINCT establishment_id FROM visited JOIN person ON visited.person_id = person.id WHERE person.id = ? AND date between ? and ?) AND date between ? and ?) AND date between ? and ?)AND date between ? and ?;";
+           }else{ //establishment visited
                 query = "SELECT DISTINCT establishment.id AS ID, name AS VISITED, address AS ADDRESS FROM establishment, visited WHERE visited.establishment_id=establishment.id AND visited.person_id = ? AND date BETWEEN ? AND ? ORDER BY name, address;";
             }
             
@@ -187,6 +187,14 @@ public class NCoV19TracerModel{
             if(type!=2){
                 stmt.setDate(4, java.sql.Date.valueOf(from));
                 stmt.setDate(5, java.sql.Date.valueOf(to));
+                if(type == 1){
+                    stmt.setDate(6, java.sql.Date.valueOf(from));
+                    stmt.setDate(7, java.sql.Date.valueOf(to));
+                    stmt.setDate(8, java.sql.Date.valueOf(from));
+                    stmt.setDate(9, java.sql.Date.valueOf(to));
+                }
+            }
+            else{
             }
             ResultSet rg = stmt.executeQuery();
             

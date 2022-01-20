@@ -99,7 +99,6 @@ public class NCoV19TracerUI extends JFrame{
 
 				if(controller.establishmentVerified(establishmentID)){
 						if(establishmentID==0){ //contact tracers
-							//System.out.println("NO BUENO 0");
 							setScreen(3);
 							setMenu(3);
 						}else{ //other establishments
@@ -361,6 +360,7 @@ public class NCoV19TracerUI extends JFrame{
 					
 					setScreen(4);
 				}catch(Exception eD){
+					eD.printStackTrace();
 					JOptionPane.showMessageDialog(null,"Tracing Error!",
 	                        "Trace Error", JOptionPane.ERROR_MESSAGE);
 				}
@@ -378,8 +378,13 @@ public class NCoV19TracerUI extends JFrame{
 		header.setReorderingAllowed(false);
         tmc.getColumn(0).setHeaderValue("ID");
         tmc.getColumn(1).setHeaderValue("Name");
-        tmc.getColumn(2).setHeaderValue("Contact Number");
-        tmc.getColumn(3).setHeaderValue("Address");
+		if (table.getColumnCount() > 3){
+        	tmc.getColumn(2).setHeaderValue("Contact Number");
+			tmc.getColumn(3).setHeaderValue("Address");
+		}
+		else{
+			tmc.getColumn(2).setHeaderValue("Address");
+		}
         
         
 		JPanel tableResultPanel = new JPanel(new FlowLayout());
